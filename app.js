@@ -26,7 +26,6 @@ const client = new MongoClient(uri, {
     ssl: true,
     tls: true,
     tlsAllowInvalidCertificates: true,
-    directConnection: true,
     retryWrites: true,
     minPoolSize: 10,
     maxPoolSize: 100,
@@ -51,7 +50,6 @@ async function run() {
             ssl: true,
             tls: true,
             tlsAllowInvalidCertificates: true,
-            directConnection: true,
             retryWrites: true,
             serverSelectionTimeoutMS: 60000,
             socketTimeoutMS: 60000,
@@ -65,7 +63,7 @@ async function run() {
 
         // Start server after successful connection
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server is running on port ${PORT}`);
             console.log(`Visit http://localhost:${PORT} to access the application`);
         });
@@ -117,8 +115,7 @@ const sessionStore = MongoStore.create({
     mongoOptions: {
         ssl: true,
         tls: true,
-        tlsAllowInvalidCertificates: true,
-        directConnection: true
+        tlsAllowInvalidCertificates: true
     }
 });
 
