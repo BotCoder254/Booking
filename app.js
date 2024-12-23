@@ -21,8 +21,17 @@ const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
-        deprecationErrors: true,
-    }
+        deprecationErrors: true
+    },
+    ssl: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
+    directConnection: true,
+    retryWrites: true,
+    minPoolSize: 10,
+    maxPoolSize: 100,
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 45000
 });
 
 // MongoDB Connection Function
@@ -30,6 +39,7 @@ async function run() {
     try {
         // Connect the client to the server
         await client.connect();
+        
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -38,15 +48,27 @@ async function run() {
         await mongoose.connect(uri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 60000, // Increase to 60 seconds
+            ssl: true,
+            tls: true,
+            tlsAllowInvalidCertificates: true,
+            directConnection: true,
+            retryWrites: true,
+            serverSelectionTimeoutMS: 60000,
             socketTimeoutMS: 60000,
             connectTimeoutMS: 60000,
-            // Don't close the connection
-            autoClose: false,
+            minPoolSize: 10,
+            maxPoolSize: 100,
             keepAlive: true,
             keepAliveInitialDelay: 300000
         });
         console.log('Mongoose connection successful!');
+
+        // Start server after successful connection
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+            console.log(`Visit http://localhost:${PORT} to access the application`);
+        });
     } catch (err) {
         console.error('MongoDB connection error:', err);
         process.exit(1);
@@ -91,7 +113,13 @@ app.use(methodOverride('_method'));
 const sessionStore = MongoStore.create({
     mongoUrl: uri,
     touchAfter: 24 * 3600,
-    ttl: 24 * 60 * 60
+    ttl: 24 * 60 * 60,
+    mongoOptions: {
+        ssl: true,
+        tls: true,
+        tlsAllowInvalidCertificates: true,
+        directConnection: true
+    }
 });
 
 app.use(session({
@@ -193,14 +221,5 @@ app.use((err, req, res, next) => {
         message: 'Something went wrong!',
         error: errorDetails,
         stack: process.env.NODE_ENV === 'development' ? err.stack : ''
-    });
-});
-
-// Start server only after database connection
-mongoose.connection.once('open', () => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-        console.log(`Visit http://localhost:${PORT} to access the application`);
     });
 }); 
