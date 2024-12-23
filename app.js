@@ -10,39 +10,56 @@ const methodOverride = require('method-override');
 const path = require('path');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = process.env.MONGODB_URI || "mongodb+srv://telvin:soulmind@cluster0.k9y9n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const app = express();
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// MongoDB Connection URI
+const uri = process.env.MONGODB_URI || "mongodb+srv://telvin:soulmind@cluster0.k9y9n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
-});
-
-// Connect to MongoDB using Mongoose
-mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-    socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
+    },
     ssl: true,
-    sslValidate: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
     maxPoolSize: 50,
     wtimeoutMS: 30000,
-    retryWrites: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-    // Ping the database to confirm connection
-    return client.db("admin").command({ ping: 1 });
-}).then(() => {
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-}).catch(err => {
-    console.error('MongoDB connection error:', err);
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
 });
+
+// Connect to MongoDB using the new client
+async function connectDB() {
+    try {
+        await client.connect();
+        await client.db("admin").command({ ping: 1 });
+        console.log("MongoDB connection successful!");
+
+        // After successful client connection, connect Mongoose
+        await mongoose.connect(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 30000,
+            socketTimeoutMS: 45000,
+            ssl: true,
+            tls: true,
+            tlsAllowInvalidCertificates: true,
+            maxPoolSize: 50,
+            wtimeoutMS: 30000
+        });
+        console.log('Mongoose connection successful!');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    }
+}
+
+// Call the connect function
+connectDB().catch(console.dir);
 
 // Import User model
 const User = require('./models/User');
@@ -61,8 +78,12 @@ app.use(methodOverride('_method'));
 
 // Session configuration with MongoDB store
 const sessionStore = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    touchAfter: 24 * 3600 // time period in seconds
+    mongoUrl: uri,
+    touchAfter: 24 * 3600, // time period in seconds
+    crypto: {
+        secret: process.env.SESSION_SECRET
+    },
+    ttl: 24 * 60 * 60 // = 1 day
 });
 
 app.use(session({
@@ -71,7 +92,8 @@ app.use(session({
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24 // 24 hours
+        maxAge: 1000 * 60 * 60 * 24, // 24 hours
+        secure: process.env.NODE_ENV === 'production'
     }
 }));
 
@@ -85,7 +107,6 @@ app.use(passport.session());
 // Configure Passport-Local Strategy
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
-        // Try to find user by username or email
         const user = await User.findOne({
             $or: [
                 { username: username.toLowerCase() },
@@ -97,7 +118,6 @@ passport.use(new LocalStrategy(async (username, password, done) => {
             return done(null, false, { message: 'Invalid username or password' });
         }
 
-        // Verify password
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return done(null, false, { message: 'Invalid username or password' });
@@ -140,7 +160,7 @@ app.use('/events', require('./routes/events'));
 app.use('/users', require('./routes/users'));
 
 // 404 handler
-app.use((req, res) => {
+app.use((req, res, next) => {
     res.status(404).render('404', { 
         title: 'Not Found',
         message: 'Page not found' 
@@ -148,7 +168,23 @@ app.use((req, res) => {
 });
 
 // Error handler
-app.use(require('./middleware/error'));
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    
+    // Prevent multiple responses
+    if (res.headersSent) {
+        return next(err);
+    }
+    
+    const errorDetails = process.env.NODE_ENV === 'development' ? err : {};
+    
+    res.status(500).render('error', {
+        title: 'Server Error',
+        message: 'Something went wrong!',
+        error: errorDetails,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : ''
+    });
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;
