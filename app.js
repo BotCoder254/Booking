@@ -22,34 +22,29 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    },
-    ssl: true,
-    tls: true,
-    tlsAllowInvalidCertificates: true,
-    maxPoolSize: 50,
-    wtimeoutMS: 30000,
-    connectTimeoutMS: 30000,
-    socketTimeoutMS: 45000,
+    }
 });
 
-// Connect to MongoDB using the new client
-async function connectDB() {
+// MongoDB Connection Function
+async function run() {
     try {
+        // Connect the client to the server
         await client.connect();
+        // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
-        console.log("MongoDB connection successful!");
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-        // After successful client connection, connect Mongoose
+        // Connect Mongoose after successful client connection
         await mongoose.connect(uri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 30000,
-            socketTimeoutMS: 45000,
-            ssl: true,
-            tls: true,
-            tlsAllowInvalidCertificates: true,
-            maxPoolSize: 50,
-            wtimeoutMS: 30000
+            serverSelectionTimeoutMS: 60000, // Increase to 60 seconds
+            socketTimeoutMS: 60000,
+            connectTimeoutMS: 60000,
+            // Don't close the connection
+            autoClose: false,
+            keepAlive: true,
+            keepAliveInitialDelay: 300000
         });
         console.log('Mongoose connection successful!');
     } catch (err) {
@@ -59,7 +54,23 @@ async function connectDB() {
 }
 
 // Call the connect function
-connectDB().catch(console.dir);
+run().catch(console.dir);
+
+// Handle Mongoose connection events
+mongoose.connection.on('error', err => {
+    console.error('Mongoose connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('Mongoose disconnected');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    await mongoose.connection.close();
+    await client.close();
+    process.exit(0);
+});
 
 // Import User model
 const User = require('./models/User');
@@ -79,20 +90,17 @@ app.use(methodOverride('_method'));
 // Session configuration with MongoDB store
 const sessionStore = MongoStore.create({
     mongoUrl: uri,
-    touchAfter: 24 * 3600, // time period in seconds
-    crypto: {
-        secret: process.env.SESSION_SECRET
-    },
-    ttl: 24 * 60 * 60 // = 1 day
+    touchAfter: 24 * 3600,
+    ttl: 24 * 60 * 60
 });
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your_session_secret_here',
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24, // 24 hours
+        maxAge: 1000 * 60 * 60 * 24,
         secure: process.env.NODE_ENV === 'production'
     }
 }));
@@ -161,6 +169,9 @@ app.use('/users', require('./routes/users'));
 
 // 404 handler
 app.use((req, res, next) => {
+    if (res.headersSent) {
+        return next();
+    }
     res.status(404).render('404', { 
         title: 'Not Found',
         message: 'Page not found' 
@@ -171,7 +182,6 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     
-    // Prevent multiple responses
     if (res.headersSent) {
         return next(err);
     }
@@ -186,9 +196,11 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Visit http://localhost:${PORT} to access the application`);
+// Start server only after database connection
+mongoose.connection.once('open', () => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Visit http://localhost:${PORT} to access the application`);
+    });
 }); 
