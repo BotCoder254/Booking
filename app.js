@@ -26,7 +26,14 @@ const client = new MongoClient(uri, {
 // Connect to MongoDB using Mongoose
 mongoose.connect(uri, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+    socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
+    ssl: true,
+    sslValidate: true,
+    maxPoolSize: 50,
+    wtimeoutMS: 30000,
+    retryWrites: true
 }).then(() => {
     console.log('Connected to MongoDB');
     // Ping the database to confirm connection

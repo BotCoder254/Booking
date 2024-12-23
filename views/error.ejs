@@ -5,11 +5,20 @@
         <div class="col-md-6 mx-auto text-center">
             <h1><%= title %></h1>
             <p class="lead"><%= message %></p>
-            <% if (error && Object.keys(error).length > 0) { %>
+            
+            <% if (locals.error && Object.keys(locals.error).length > 0) { %>
                 <div class="alert alert-danger">
                     <pre><%= JSON.stringify(error, null, 2) %></pre>
                 </div>
             <% } %>
+            
+            <% if (locals.stack) { %>
+                <div class="alert alert-warning mt-4">
+                    <h4 class="alert-heading">Stack Trace:</h4>
+                    <pre class="mb-0"><%= stack %></pre>
+                </div>
+            <% } %>
+            
             <a href="/" class="btn btn-primary">Return Home</a>
         </div>
     </div>
