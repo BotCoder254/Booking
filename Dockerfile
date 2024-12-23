@@ -26,7 +26,7 @@ COPY . .
 ENV NODE_ENV=production \
     PORT=3000 \
     MONGODB_URI=mongodb+srv://telvin:soulmind@cluster0.k9y9n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 \
-    SESSION_SECRET=your_session_secret_here \
+    SESSION_SECRET=cab74f2d1f37a208fd9e6b2e3249f8625fe3a84b31bc7287d2f5c9ac8b48bda9\
     MPESA_CONSUMER_KEY=lo3ulMVG5tf2GUnvtJrE80TFsQblCdApm0EhN4QBCAg4Jwuk \
     MPESA_CONSUMER_SECRET=OO7GuqeGLt3hXMW8eqNrDFjGqgFPKT8IE2ogdrcy5vDCfJppVEZwk157AOlplAgK \
     MPESA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919 \
