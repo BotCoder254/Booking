@@ -124,7 +124,7 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
         await user.save();
 
         // Send verification email
-        const verificationUrl = `${process.env.BASE_URL}/auth/verify/${verificationToken}`;
+        const verificationUrl = `${req.app.locals.BASE_URL}/auth/verify/${verificationToken}`;
         await transporter.sendMail({
             from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDRESS}>`,
             to: user.email,
