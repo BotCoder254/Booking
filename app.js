@@ -14,84 +14,56 @@ const cors = require('cors');
 
 const app = express();
 
-// Select MongoDB URI based on environment
-const uri = process.env.NODE_ENV === 'production' 
-  ? process.env.MONGODB_URI_PROD 
-  : process.env.MONGODB_URI_DEV;
+// Replace the environment-based URI with the direct connection string
+const uri = "mongodb+srv://stream:telvinteum@stream.o3qip.mongodb.net/?retryWrites=true&w=majority&appName=stream";
 
-// Set base URL based on environment
-const BASE_URL = process.env.NODE_ENV === 'production'
-  ? process.env.BASE_URL_PROD
-  : process.env.BASE_URL_DEV;
+// Update the BASE_URL configuration
+const BASE_URL = 'http://localhost:5000';  // Hardcode for local development for now
 
-// Add BASE_URL to app locals so it's available in all templates
+// Make BASE_URL available globally
 app.locals.BASE_URL = BASE_URL;
 
-// Middleware to make BASE_URL available to all routes
+// Ensure BASE_URL is available in all routes
 app.use((req, res, next) => {
-  res.locals.BASE_URL = BASE_URL;
+  // Remove any trailing slashes from BASE_URL
+  res.locals.BASE_URL = BASE_URL.replace(/\/$/, '');
+  req.BASE_URL = BASE_URL.replace(/\/$/, '');  // Also make it available on req object
   next();
 });
 
-console.log(`Using MongoDB URI for ${process.env.NODE_ENV} environment`);
+console.log(`Using BASE_URL: ${BASE_URL}`);
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// Create a MongoClient with a MongoClientOptions object
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
 });
 
-async function run() {
-  try {
-    // Connect the client to the server (optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-
-    // Connect Mongoose after successful client connection
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('Mongoose connection successful!');
-
-    // Start server after successful connection
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Visit http://localhost:${PORT} to access the application`);
-    });
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
-}
-
-// Call the connect function
-run().catch(console.dir);
-
-// Handle Mongoose connection events
-mongoose.connection.on('error', err => {
-  console.error('Mongoose connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose disconnected');
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  await client.close();
-  process.exit(0);
-});
+// DB Config with Mongoose
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true
+    }
+})
+.then(async () => {
+    try {
+        // Connect the client to the server
+        await client.connect();
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log("MongoDB Connected Successfully!");
+    } catch (err) {
+        console.error("Error connecting to MongoDB:", err);
+    }
+})
+.catch(err => console.error('MongoDB connection error:', err));
 
 // Import User model
 const User = require('./models/User');
@@ -109,26 +81,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(cors());
 
-// Session configuration with MongoDB store
-const sessionStore = MongoStore.create({
-  mongoUrl: process.env.NODE_ENV === 'production' ? process.env.MONGODB_URI_PROD : process.env.MONGODB_URI_DEV,
-  touchAfter: 24 * 3600,
-  ttl: 24 * 60 * 60,
-  mongoOptions: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }
-});
-
+// Remove the separate sessionStore configuration and update the session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your_session_secret_here',
-  resave: false,
-  saveUninitialized: false,
-  store: sessionStore,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-    secure: process.env.NODE_ENV === 'production'
-  }
+    secret: process.env.SESSION_SECRET || 'KquWbFL6DYB7sw4FxuVXAyZnwbfArT0YpoxF1yNGKZg',
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    store: MongoStore.create({
+        mongoUrl: uri,
+        collectionName: 'sessions',
+        ttl: 24 * 60 * 60,
+        autoRemove: 'native',
+        touchAfter: 24 * 3600,
+        crypto: {
+            secret: process.env.SESSION_SECRET || 'KquWbFL6DYB7sw4FxuVXAyZnwbfArT0YpoxF1yNGKZg'
+        }
+    }),
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
+    },
+    name: 'streamvista.sid'
 }));
 
 // Flash messages
@@ -224,4 +199,11 @@ app.use((err, req, res, next) => {
     error: errorDetails,
     stack: process.env.NODE_ENV === 'development' ? err.stack : ''
   });
+});
+
+// Add at the end of app.js, after all your routes and middleware
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
