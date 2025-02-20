@@ -19,32 +19,23 @@ COPY package*.json ./
 RUN npm ci --only=production && \
     npm cache clean --force
 
-# Copy app source and env file
+# Copy app source
 COPY . .
 
-# Set default environment variables (will be overridden by .env file)
+# Set default environment variables
 ENV NODE_ENV=production \
     PORT=3000 \
     MONGODB_URI=mongodb+srv://telvin:soulmind@cluster0.k9y9n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 \
-    SESSION_SECRET=cab74f2d1f37a208fd9e6b2e3249f8625fe3a84b31bc7287d2f5c9ac8b48bda9\
-    MPESA_CONSUMER_KEY=lo3ulMVG5tf2GUnvtJrE80TFsQblCdApm0EhN4QBCAg4Jwuk \
-    MPESA_CONSUMER_SECRET=OO7GuqeGLt3hXMW8eqNrDFjGqgFPKT8IE2ogdrcy5vDCfJppVEZwk157AOlplAgK \
-    MPESA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919 \
-    MPESA_SHORTCODE=174379 \
-    MPESA_ENVIRONMENT=sandbox \
-    MPESA_TEST_MSISDN=254792052669 \
-    MPESA_TEST_PHONE=254792052669 \
+    SESSION_SECRET=cab74f2d1f37a208fd9e6b2e3249f8625fe3a84b31bc7287d2f5c9ac8b48bda9 \
     SMTP_HOST=smtp.gmail.com \
     SMTP_PORT=587 \
     SMTP_USER=teumteum776@gmail.com \
     SMTP_PASS="calz oyxv inlj msgv" \
     ADMIN_EMAIL=admin@eventsys.com \
     EMAIL_FROM_NAME=EventSys \
-    EMAIL_FROM_ADDRESS=noreply@eventsys.com \
-    RENDER_EXTERNAL_URL=your-app-name.onrender.com \
-    RENDER_EXTERNAL_HOSTNAME=your-app-name.onrender.com
+    EMAIL_FROM_ADDRESS=noreply@eventsys.com
 
-# Set base URL using RENDER_EXTERNAL_URL if available
+# Set base URL based on environment
 ENV BASE_URL=${RENDER_EXTERNAL_URL:+https://$RENDER_EXTERNAL_URL}
 ENV BASE_URL=${BASE_URL:-http://localhost:$PORT}
 
@@ -62,5 +53,5 @@ RUN mkdir -p /data/db
 COPY wait-for-mongo.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/wait-for-mongo.sh
 
-# Start the application using node with env file
+# Start the application with proper env loading
 CMD ["sh", "-c", "node -r dotenv/config app.js"] 
