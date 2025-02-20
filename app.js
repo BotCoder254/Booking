@@ -17,17 +17,21 @@ const app = express();
 // Replace the environment-based URI with the direct connection string
 const uri = "mongodb+srv://stream:telvinteum@stream.o3qip.mongodb.net/?retryWrites=true&w=majority&appName=stream";
 
-// Update the BASE_URL configuration
-const BASE_URL = 'http://localhost:5000';  // Hardcode for local development for now
+// Update the BASE_URL configuration to use environment variable
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
-// Make BASE_URL available globally
+// Make it available globally
 app.locals.BASE_URL = BASE_URL;
 
 // Ensure BASE_URL is available in all routes
 app.use((req, res, next) => {
-  // Remove any trailing slashes from BASE_URL
-  res.locals.BASE_URL = BASE_URL.replace(/\/$/, '');
-  req.BASE_URL = BASE_URL.replace(/\/$/, '');  // Also make it available on req object
+    res.locals.BASE_URL = BASE_URL;
+    next();
+});
+
+// Add this to test the BASE_URL
+app.use((req, res, next) => {
+  console.log('Current BASE_URL:', res.locals.BASE_URL);
   next();
 });
 

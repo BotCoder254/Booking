@@ -185,8 +185,10 @@ router.post('/forgot-password', isNotAuthenticated, async (req, res) => {
         user.resetPasswordExpires = resetTokenExpiry;
         await user.save();
 
-        // Send reset email
-        const resetUrl = `${process.env.BASE_URL}/auth/reset-password/${resetToken}`;
+        // Ensure BASE_URL is properly formatted
+        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+        const resetUrl = `${baseUrl.replace(/\/+$/, '')}/auth/reset-password/${resetToken}`;
+
         await transporter.sendMail({
             from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDRESS}>`,
             to: user.email,
