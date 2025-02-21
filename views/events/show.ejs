@@ -1,0 +1,141 @@
+<!-- Event Images Gallery -->
+<div class="mb-8">
+    <div class="swiper h-96 rounded-xl overflow-hidden">
+        <div class="swiper-wrapper">
+            <!-- Main Image -->
+            <div class="swiper-slide">
+                <img src="<%= event.image %>" 
+                     alt="<%= event.title %>" 
+                     class="w-full h-full object-cover">
+            </div>
+            <!-- Additional Images -->
+            <% if (event.additionalImages && event.additionalImages.length > 0) { %>
+                <% event.additionalImages.forEach(function(img) { %>
+                    <div class="swiper-slide">
+                        <img src="<%= img %>" 
+                             alt="<%= event.title %>" 
+                             class="w-full h-full object-cover">
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+        <!-- Add Navigation Arrows -->
+        <div class="swiper-button-prev !text-white !w-8 !h-8"></div>
+        <div class="swiper-button-next !text-white !w-8 !h-8"></div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+    
+    <!-- Thumbnails -->
+    <div class="grid grid-cols-5 gap-2 mt-2">
+        <div class="aspect-w-16 aspect-h-9 cursor-pointer hover:opacity-75 transition-opacity">
+            <img src="<%= event.image %>" 
+                 alt="Thumbnail" 
+                 class="rounded object-cover w-full h-full">
+        </div>
+        <% if (event.additionalImages && event.additionalImages.length > 0) { %>
+            <% event.additionalImages.forEach(function(img) { %>
+                <div class="aspect-w-16 aspect-h-9 cursor-pointer hover:opacity-75 transition-opacity">
+                    <img src="<%= img %>" 
+                         alt="Thumbnail" 
+                         class="rounded object-cover w-full h-full">
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+</div>
+
+<style>
+/* Custom styles for Swiper navigation buttons */
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 1.5rem !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    padding: 1.5rem;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #fff !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const swiper = new Swiper('.swiper', {
+        loop: true,
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    });
+
+    // Thumbnail click functionality
+    document.querySelectorAll('.aspect-w-16').forEach((thumb, index) => {
+        thumb.addEventListener('click', () => {
+            swiper.slideTo(index);
+        });
+    });
+
+    // Only initialize autoComplete if we're in edit mode
+    const locationInput = document.querySelector('#location');
+    if (locationInput) {
+        try {
+            const autoCompleteJS = new autoComplete({
+                selector: "#location",
+                placeHolder: "Enter event location...",
+                data: {
+                    src: async (query) => {
+                        try {
+                            const locations = [
+                                "New York, USA",
+                                "London, UK",
+                                "Paris, France",
+                                "Tokyo, Japan",
+                                "Sydney, Australia",
+                                "Dubai, UAE",
+                                "Singapore",
+                                "Hong Kong",
+                                "Berlin, Germany",
+                                "Mumbai, India"
+                            ];
+                            
+                            return locations.filter(location => 
+                                location.toLowerCase().includes(query.toLowerCase())
+                            );
+                        } catch (error) {
+                            return [];
+                        }
+                    },
+                    cache: true,
+                },
+                resultItem: {
+                    highlight: true
+                },
+                events: {
+                    input: {
+                        selection: (event) => {
+                            const selection = event.detail.selection.value;
+                            autoCompleteJS.input.value = selection;
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.warn('autoComplete initialization skipped:', error);
+        }
+    }
+});
+</script> 
