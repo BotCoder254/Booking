@@ -33,11 +33,11 @@ ENV NODE_ENV=production \
     SMTP_PASS="pcim cpkc mnsc rqwv" \
     ADMIN_EMAIL=admin@eventsys.com \
     EMAIL_FROM_NAME=EventSys \
-    EMAIL_FROM_ADDRESS=noreply@eventsys.com
+    EMAIL_FROM_ADDRESS=noreply@eventsys.com \
+    RENDER_EXTERNAL_URL=booking-1q1g.onrender.com
 
-# Set base URL based on environment
-ENV BASE_URL=${RENDER_EXTERNAL_URL:+https://$RENDER_EXTERNAL_URL}
-ENV BASE_URL=${BASE_URL:-http://localhost:$PORT}
+# Set base URL based on environment - use the actual deployed URL
+ENV BASE_URL=https://booking-1q1g.onrender.com
 
 # Expose port
 EXPOSE ${PORT}
