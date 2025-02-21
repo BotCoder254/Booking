@@ -29,9 +29,13 @@ const eventSchema = new mongoose.Schema({
         type: String,
         default: '/images/default-event.jpg'
     },
+    additionalImages: [{
+        type: String
+    }],
     capacity: {
         type: Number,
-        required: true
+        required: true,
+        min: 1
     },
     price: {
         type: Number,
@@ -63,16 +67,15 @@ const eventSchema = new mongoose.Schema({
         type: String,
         enum: ['draft', 'published', 'cancelled'],
         default: 'published'
+    },
+    isAtCapacity: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
-});
-
-// Virtual for checking if event is full
-eventSchema.virtual('isFull').get(function() {
-    return this.attendees.length >= this.capacity;
 });
 
 // Virtual for remaining spots
@@ -87,10 +90,42 @@ eventSchema.virtual('hasEnded').get(function() {
 
 // Pre-save middleware to ensure image path is set
 eventSchema.pre('save', function(next) {
+    // Check capacity
+    this.isAtCapacity = this.attendees.length >= this.capacity;
+    
+    // Ensure image paths
     if (!this.image) {
         this.image = '/images/default-event.jpg';
     }
+    
     next();
 });
+
+// Method to check capacity
+eventSchema.methods.checkCapacity = function() {
+    const atCapacity = this.attendees.length >= this.capacity;
+    this.isAtCapacity = atCapacity;
+    return atCapacity;
+};
+
+// Virtual for isFull that uses isAtCapacity
+eventSchema.virtual('isFull').get(function() {
+    return this.isAtCapacity;
+});
+
+// Add these methods to your Event model
+eventSchema.methods.getStatus = function() {
+    const now = new Date();
+    if (this.date < now) {
+        return 'ended';
+    }
+    if (this.isAtCapacity) {
+        return 'full';
+    }
+    if (this.remainingSpots <= 5) {
+        return 'almostFull';
+    }
+    return 'available';
+};
 
 module.exports = mongoose.model('Event', eventSchema);

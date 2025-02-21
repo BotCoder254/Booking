@@ -19,9 +19,9 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String
     },
-    profilePicture: {
+    profileImage: {
         type: String,
-        default: '/images/default-avatar.jpg'
+        default: '/@images/@profiledefault.jpg'
     },
     bio: String,
     eventsCreated: [{

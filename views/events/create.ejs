@@ -34,206 +34,233 @@
                         <div class="overflow-hidden h-2 flex rounded bg-gray-200">
                             <div class="progress-bar transition-all duration-500 h-2 rounded bg-gradient-to-r from-blue-600 to-purple-600" style="width: 33%"></div>
                         </div>
-                        <div class="absolute top-2 w-full flex justify-between">
-                            <div class="step-indicator active">
-                                <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
-                                <span class="text-xs font-medium text-gray-500 mt-1">Basics</span>
+                        <div class="step-indicators-container">
+                            <div class="step-indicator">
+                                <div class="step-number">1</div>
+                                <span class="step-label">Basics</span>
                             </div>
                             <div class="step-indicator">
-                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold">2</div>
-                                <span class="text-xs font-medium text-gray-500 mt-1">Details</span>
+                                <div class="step-number">2</div>
+                                <span class="step-label">Details</span>
                             </div>
                             <div class="step-indicator">
-                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-sm font-bold">3</div>
-                                <span class="text-xs font-medium text-gray-500 mt-1">Media</span>
+                                <div class="step-number">3</div>
+                                <span class="step-label">Publish</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <form action="/events" method="POST" enctype="multipart/form-data" id="createEventForm" class="space-y-6">
-                    <!-- Step 1: Basic Information -->
-                    <div class="step" data-step="1">
-                        <div class="space-y-6">
-                            <div>
-                                <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-heading text-gray-400"></i>
-                                    </div>
-                                    <input type="text" 
-                                           id="title" 
-                                           name="title" 
-                                           required 
-                                           class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="Give your event a catchy title">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <div class="relative">
-                                    <textarea id="description" 
-                                              name="description" 
-                                              required 
-                                              rows="4"
-                                              class="pl-3 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                              placeholder="Describe your event in detail"></textarea>
-                                </div>
-                                <p class="mt-1 text-sm text-gray-500">Include key information about what attendees can expect.</p>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="step-content">
+                    <form action="/events" method="POST" enctype="multipart/form-data" id="createEventForm" class="space-y-6">
+                        <!-- Step 1: Basic Information -->
+                        <div class="step" data-step="1">
+                            <div class="space-y-6">
                                 <div>
-                                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Event Date</label>
+                                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-calendar text-gray-400"></i>
+                                            <i class="fas fa-heading text-gray-400"></i>
                                         </div>
-                                        <input type="date" 
-                                               id="date" 
-                                               name="date" 
+                                        <input type="text" 
+                                               id="title" 
+                                               name="title" 
                                                required 
-                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="Give your event a catchy title">
                                     </div>
                                 </div>
+
                                 <div>
-                                    <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Event Time</label>
+                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <div class="relative">
+                                        <textarea id="description" 
+                                                  name="description" 
+                                                  required 
+                                                  rows="4"
+                                                  class="pl-3 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                  placeholder="Describe your event in detail"></textarea>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500">Include key information about what attendees can expect.</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Event Date</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-calendar text-gray-400"></i>
+                                            </div>
+                                            <input type="date" 
+                                                   id="date" 
+                                                   name="date" 
+                                                   required 
+                                                   class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Event Time</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-clock text-gray-400"></i>
+                                            </div>
+                                            <input type="time" 
+                                                   id="time" 
+                                                   name="time" 
+                                                   required 
+                                                   class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Location and Categories -->
+                        <div class="step hidden" data-step="2">
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i class="fas fa-clock text-gray-400"></i>
+                                            <i class="fas fa-map-marker-alt text-gray-400"></i>
                                         </div>
-                                        <input type="time" 
-                                               id="time" 
-                                               name="time" 
+                                        <input type="text" 
+                                               id="location" 
+                                               name="location" 
                                                required 
-                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="Enter event location">
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Step 2: Location and Categories -->
-                    <div class="step hidden" data-step="2">
-                        <div class="space-y-6">
-                            <div>
-                                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-map-marker-alt text-gray-400"></i>
-                                    </div>
-                                    <input type="text" 
-                                           id="location" 
-                                           name="location" 
-                                           required 
-                                           class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="Enter event location">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-tag text-gray-400"></i>
-                                    </div>
-                                    <select id="category" 
-                                            name="category" 
-                                            required 
-                                            class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">Select a category</option>
-                                        <option value="Music">Music</option>
-                                        <option value="Technology">Technology</option>
-                                        <option value="Sports">Sports</option>
-                                        <option value="Art">Art</option>
-                                        <option value="Food">Food</option>
-                                        <option value="Business">Business</option>
-                                        <option value="Education">Education</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Event Capacity</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-users text-gray-400"></i>
-                                    </div>
-                                    <input type="number" 
-                                           id="capacity" 
-                                           name="capacity" 
-                                           required 
-                                           min="1"
-                                           class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="Maximum number of attendees">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Additional Details -->
-                    <div class="step hidden" data-step="3">
-                        <div class="space-y-6">
-                            <div>
-                                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Ticket Price</label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-dollar-sign text-gray-400"></i>
-                                    </div>
-                                    <input type="number" 
-                                           id="price" 
-                                           name="price" 
-                                           required 
-                                           min="0" 
-                                           step="0.01" 
-                                           class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="Enter ticket price (0 for free events)">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Event Image</label>
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                                    <div class="space-y-1 text-center">
-                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-4xl mb-3"></i>
-                                        <div class="flex text-sm text-gray-600">
-                                            <label for="coverImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                <span>Upload a file</span>
-                                                <input id="coverImage" name="image" type="file" accept="image/*" class="sr-only">
-                                            </label>
-                                            <p class="pl-1">or drag and drop</p>
+                                <div>
+                                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-tag text-gray-400"></i>
                                         </div>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                        <select id="category" 
+                                                name="category" 
+                                                required 
+                                                class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Select a category</option>
+                                            <option value="Music">Music</option>
+                                            <option value="Technology">Technology</option>
+                                            <option value="Sports">Sports</option>
+                                            <option value="Art">Art</option>
+                                            <option value="Food">Food</option>
+                                            <option value="Business">Business</option>
+                                            <option value="Education">Education</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Event Capacity</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-users text-gray-400"></i>
+                                        </div>
+                                        <input type="number" 
+                                               id="capacity" 
+                                               name="capacity" 
+                                               required 
+                                               min="1"
+                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="Maximum number of attendees">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Navigation Buttons -->
-                    <div class="flex justify-between mt-8">
-                        <button type="button" 
-                                id="prevBtn" 
-                                class="hidden px-6 py-2 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Previous
-                        </button>
-                        <button type="button" 
-                                id="nextBtn" 
-                                class="px-6 py-2 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Next
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </button>
-                        <button type="submit" 
-                                id="submitBtn" 
-                                class="hidden px-6 py-2 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <i class="fas fa-plus-circle mr-2"></i>
-                            Create Event
-                        </button>
-                    </div>
-                </form>
+                        <!-- Step 3: Additional Details -->
+                        <div class="step hidden" data-step="3">
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Ticket Price</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-dollar-sign text-gray-400"></i>
+                                        </div>
+                                        <input type="number" 
+                                               id="price" 
+                                               name="price" 
+                                               required 
+                                               min="0" 
+                                               step="0.01" 
+                                               class="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="Enter ticket price (0 for free events)">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Event Image</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg relative">
+                                        <div class="space-y-1 text-center" id="imageUploadArea">
+                                            <i class="fas fa-cloud-upload-alt text-gray-400 text-4xl mb-3"></i>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="coverImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                    <span>Upload a file</span>
+                                                    <input id="coverImage" name="image" type="file" accept="image/*" class="sr-only">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                        </div>
+                                        <!-- Preview container -->
+                                        <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-white">
+                                            <img id="imagePreview" class="w-full h-full object-contain" src="" alt="Preview">
+                                            <button type="button" id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Additional Images (Optional)</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                        <div class="space-y-1 text-center">
+                                            <i class="fas fa-images text-gray-400 text-4xl mb-3"></i>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="additionalImages" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                    <span>Upload more images</span>
+                                                    <input id="additionalImages" name="additionalImages" type="file" accept="image/*" class="sr-only" multiple>
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">Up to 4 additional images (PNG, JPG, GIF up to 5MB each)</p>
+                                            <div id="additionalImagesPreview" class="grid grid-cols-2 gap-2 mt-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between mt-8">
+                            <button type="button" 
+                                    id="prevBtn" 
+                                    class="hidden px-6 py-2 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Previous
+                            </button>
+                            <button type="button" 
+                                    id="nextBtn" 
+                                    class="px-6 py-2 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Next
+                                <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                            <button type="submit" 
+                                    id="submitBtn" 
+                                    class="hidden px-6 py-2 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <i class="fas fa-plus-circle mr-2"></i>
+                                Create Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -294,28 +321,180 @@ document.getElementById('prevBtn').addEventListener('click', () => {
     }
 });
 
-// File upload preview
+// Image upload preview functionality
 const coverImage = document.getElementById('coverImage');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const imagePreview = document.getElementById('imagePreview');
+const imageUploadArea = document.getElementById('imageUploadArea');
+const removeImage = document.getElementById('removeImage');
+
+// Handle file selection
 coverImage.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const preview = document.createElement('img');
-            preview.src = e.target.result;
-            preview.classList.add('mt-2', 'rounded-lg', 'w-full', 'h-48', 'object-cover');
-            
-            const container = coverImage.closest('div').querySelector('.space-y-1');
-            const existingPreview = container.querySelector('img');
-            if (existingPreview) {
-                existingPreview.remove();
-            }
-            container.appendChild(preview);
+            imagePreview.src = e.target.result;
+            imagePreviewContainer.classList.remove('hidden');
+            imageUploadArea.classList.add('hidden');
         }
         reader.readAsDataURL(file);
     }
 });
 
+// Handle remove image
+removeImage.addEventListener('click', function() {
+    coverImage.value = '';
+    imagePreview.src = '';
+    imagePreviewContainer.classList.add('hidden');
+    imageUploadArea.classList.remove('hidden');
+});
+
+// Drag and drop functionality
+const dropZone = imageUploadArea.closest('div');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    dropZone.classList.add('border-blue-500', 'bg-blue-50');
+}
+
+function unhighlight(e) {
+    dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const file = dt.files[0];
+    
+    if (file && file.type.startsWith('image/')) {
+        coverImage.files = dt.files;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreviewContainer.classList.remove('hidden');
+            imageUploadArea.classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+// Additional images preview
+const additionalImages = document.getElementById('additionalImages');
+const previewContainer = document.getElementById('additionalImagesPreview');
+
+additionalImages.addEventListener('change', function(e) {
+    // Clear existing previews
+    previewContainer.innerHTML = '';
+    
+    Array.from(e.target.files).forEach(file => {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.createElement('div');
+                preview.className = 'relative';
+                preview.innerHTML = `
+                    <img src="${e.target.result}" class="rounded-lg w-full h-24 object-cover">
+                    <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                previewContainer.appendChild(preview);
+
+                // Add remove functionality
+                preview.querySelector('button').addEventListener('click', function() {
+                    preview.remove();
+                });
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+});
+
 // Initialize the form
 showStep(1);
 </script>
+
+<style>
+/* Update the step indicator styles */
+.step-indicator {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    margin-top: -10px; /* Adjust vertical position */
+}
+
+/* Remove the line by commenting out or removing this block */
+/* .step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 100vw;
+    height: 2px;
+    background-color: #e5e7eb;
+    z-index: -1;
+} */
+
+.progress-bar {
+    position: relative;
+    z-index: 5;
+    margin-bottom: 20px; /* Add space below progress bar */
+}
+
+.step-content {
+    margin-top: 2rem; /* Reduce space between indicators and form */
+}
+
+/* Update step numbers style */
+.step-number {
+    background: linear-gradient(to right, #2563eb, #7c3aed);
+    width: 2.5rem; /* Slightly larger circles */
+    height: 2.5rem; /* Slightly larger circles */
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    position: relative;
+    z-index: 15;
+    margin-bottom: 0.5rem; /* Space between number and label */
+}
+
+/* Update step labels style */
+.step-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Add this to ensure proper spacing */
+.step-indicators-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 1rem; /* Add some padding on sides */
+    margin-top: -1rem; /* Adjust vertical position */
+}
+</style>

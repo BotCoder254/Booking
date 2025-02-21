@@ -7,6 +7,9 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const { isAuthenticated } = require('../middleware/auth');
 const { mpesaPayment } = require('../utils/mpesa');
+const transporter = require('../utils/email');
+const Notification = require('../models/Notification');
+const { eventFullTemplate } = require('../utils/emailTemplate');
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, '../public/uploads/events');
@@ -14,32 +17,26 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Multer configuration for event images
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function(req, file, cb) {
-        // Clean the original filename
-        const cleanFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '');
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + cleanFileName);
-    }
-});
-
+// Update Multer configuration for multiple images
 const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
-    },
-    fileFilter: function(req, file, cb) {
-        const filetypes = /jpeg|jpg|png|gif/;
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = filetypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, 'public/uploads/events')
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname)
         }
-        cb(new Error('Only image files are allowed!'));
+    }),
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit per file
+        files: 5 // Maximum 5 files
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true)
+        } else {
+            cb(new Error('Not an image! Please upload images only.'), false)
+        }
     }
 });
 
@@ -92,8 +89,11 @@ router.get('/create', isAuthenticated, (req, res) => {
     });
 });
 
-// Create event
-router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
+// Update the create route to handle multiple images
+router.post('/', isAuthenticated, upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'additionalImages', maxCount: 4 }
+]), async (req, res) => {
     try {
         const eventData = {
             ...req.body,
@@ -101,12 +101,16 @@ router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
             isPaid: req.body.price > 0
         };
 
-        if (req.file) {
-            // Store the relative path in the database
-            eventData.image = '/uploads/events/' + req.file.filename;
-        } else {
-            // Set default image if no image is uploaded
-            eventData.image = '/images/default-event.jpg';
+        // Handle main image
+        if (req.files['image']) {
+            eventData.image = '/uploads/events/' + req.files['image'][0].filename;
+        }
+
+        // Handle additional images
+        if (req.files['additionalImages']) {
+            eventData.additionalImages = req.files['additionalImages'].map(file => 
+                '/uploads/events/' + file.filename
+            );
         }
 
         const event = await Event.create(eventData);
@@ -120,9 +124,11 @@ router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
         res.redirect(`/events/${event._id}`);
     } catch (error) {
         console.error('Event Create Error:', error);
-        // If there was an error and a file was uploaded, delete it
-        if (req.file) {
-            fs.unlinkSync(path.join(uploadDir, req.file.filename));
+        // Clean up uploaded files if there was an error
+        if (req.files) {
+            Object.values(req.files).flat().forEach(file => {
+                fs.unlinkSync(path.join(uploadDir, file.filename));
+            });
         }
         req.flash('error', 'Error creating event');
         res.redirect('/events/create');
@@ -302,25 +308,45 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 // RSVP to event
 router.post('/:id/rsvp', isAuthenticated, async (req, res) => {
     try {
-        const event = await Event.findById(req.params.id);
+        const event = await Event.findById(req.params.id).populate('creator');
         const user = await User.findById(req.user._id);
 
         if (!event) {
             return res.status(404).json({ success: false, message: 'Event not found' });
         }
 
-        // Check if user is already attending
-        const isAttending = event.attendees.some(attendee => 
-            attendee.user.equals(req.user._id)
-        );
-
-        if (isAttending) {
-            return res.status(400).json({ success: false, message: 'Already attending this event' });
+        // Check if event is full
+        if (event.checkCapacity()) {
+            return res.status(400).json({ success: false, message: 'Event is full' });
         }
 
-        // Check if event is full
-        if (event.capacity && event.attendees.length >= event.capacity) {
-            return res.status(400).json({ success: false, message: 'Event is full' });
+        // Add attendee and check if event becomes full
+        event.attendees.push({
+            user: req.user._id,
+            paymentStatus: event.isPaid ? 'pending' : 'paid'
+        });
+
+        // Check if event just became full
+        const justBecameFull = event.checkCapacity();
+        await event.save();
+
+        // If event just became full, notify creator
+        if (justBecameFull) {
+            // Send email to creator
+            await transporter.sendMail({
+                from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM_ADDRESS}>`,
+                to: event.creator.email,
+                subject: `Your Event "${event.title}" is Now Full`,
+                html: eventFullTemplate(event.creator.name, event.title, event.attendees.length)
+            });
+
+            // Create notification
+            await Notification.create({
+                user: event.creator._id,
+                type: 'EVENT_FULL',
+                message: `Your event "${event.title}" has reached maximum capacity`,
+                link: `/events/${event._id}`
+            });
         }
 
         // Process payment if event is paid

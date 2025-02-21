@@ -1,0 +1,109 @@
+<div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:transform hover:scale-105">
+    <!-- Event Image with Slider -->
+    <div class="relative h-48">
+        <div class="swiper h-full">
+            <div class="swiper-wrapper">
+                <!-- Main Image -->
+                <div class="swiper-slide">
+                    <img src="<%= event.image %>" alt="<%= event.title %>" class="w-full h-full object-cover">
+                </div>
+                <!-- Additional Images -->
+                <% if (event.additionalImages && event.additionalImages.length > 0) { %>
+                    <% event.additionalImages.forEach(function(img) { %>
+                        <div class="swiper-slide">
+                            <img src="<%= img %>" alt="<%= event.title %>" class="w-full h-full object-cover">
+                        </div>
+                    <% }); %>
+                <% } %>
+            </div>
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+            <!-- Add Navigation -->
+            <div class="swiper-button-prev !text-white !w-8 !h-8"></div>
+            <div class="swiper-button-next !text-white !w-8 !h-8"></div>
+        </div>
+
+        <!-- Status Badge -->
+        <% const status = event.getStatus(); %>
+        <div class="absolute top-4 right-4 z-10 px-3 py-1 rounded-full text-sm font-medium
+            <% if (status === 'ended') { %>bg-red-500 text-white<% } %>
+            <% if (status === 'full') { %>bg-yellow-500 text-white<% } %>
+            <% if (status === 'almostFull') { %>bg-orange-500 text-white<% } %>">
+            <%= status === 'ended' ? 'Ended' : 
+               status === 'full' ? 'Full' : 
+               status === 'almostFull' ? 'Almost Full' : '' %>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+            <h3 class="text-xl font-bold text-white"><%= event.title %></h3>
+            <p class="text-sm text-white/90">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                <%= event.location %>
+            </p>
+        </div>
+    </div>
+
+    <!-- Event Details -->
+    <div class="p-4">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-calendar mr-2"></i>
+                <%= new Date(event.date).toLocaleDateString() %>
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-users mr-2"></i>
+                <%= event.attendees.length %>/<%= event.capacity %>
+            </div>
+        </div>
+
+        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+            <%= event.description %>
+        </p>
+
+        <div class="flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">
+                <%= event.price > 0 ? `$${event.price.toFixed(2)}` : 'Free' %>
+            </span>
+            <a href="/events/<%= event._id %>" 
+               class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity">
+                View Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom styles for Swiper navigation buttons */
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 1.5rem !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    padding: 1.5rem;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #fff !important;
+}
+</style>
+
+<!-- Initialize Swiper -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Swiper('.swiper-container', {
+        loop: true,
+        autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+    });
+});
+</script> 

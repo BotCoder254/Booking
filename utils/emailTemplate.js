@@ -151,6 +151,21 @@ const passwordResetTemplate = (name, resetUrl) => baseTemplate(`
     </div>
 `);
 
+// Event full template
+const eventFullTemplate = (creatorName, eventTitle, attendeeCount) => baseTemplate(`
+    <h1>Event Capacity Reached</h1>
+    <p>Dear ${creatorName},</p>
+    <p>Your event "${eventTitle}" has reached its maximum capacity of ${attendeeCount} attendees!</p>
+    <p>No more bookings will be accepted for this event.</p>
+    <div style="text-align: center; margin: 32px 0;">
+        <a href="${process.env.BASE_URL}/events/dashboard" 
+           class="button" 
+           style="font-size: 16px; padding: 16px 32px;">
+            View Event Dashboard
+        </a>
+    </div>
+`);
+
 module.exports = {
     baseTemplate,
     contactConfirmationTemplate,
@@ -158,5 +173,6 @@ module.exports = {
     adminNotificationTemplate,
     eventRegistrationTemplate,
     paymentConfirmationTemplate,
-    passwordResetTemplate
+    passwordResetTemplate,
+    eventFullTemplate
 };

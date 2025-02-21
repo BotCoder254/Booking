@@ -11,6 +11,8 @@ const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 const cors = require('cors');
+const multer = require('multer');
+require('./utils/setupDefaults');
 
 const app = express();
 
@@ -185,6 +187,17 @@ app.use((req, res, next) => {
     title: 'Not Found',
     message: 'Page not found' 
   });
+});
+
+// Add this before your general error handler
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            req.flash('error', 'File is too large. Maximum size is 5MB');
+            return res.redirect('back');
+        }
+    }
+    next(err);
 });
 
 // Error handler

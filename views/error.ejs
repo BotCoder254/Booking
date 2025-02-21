@@ -1,26 +1,40 @@
 <%- include('partials/header') %>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 mx-auto text-center">
-            <h1><%= title %></h1>
-            <p class="lead"><%= message %></p>
-            
-            <% if (locals.error && Object.keys(locals.error).length > 0) { %>
-                <div class="alert alert-danger">
-                    <pre><%= JSON.stringify(error, null, 2) %></pre>
-                </div>
-            <% } %>
-            
-            <% if (locals.stack) { %>
-                <div class="alert alert-warning mt-4">
-                    <h4 class="alert-heading">Stack Trace:</h4>
-                    <pre class="mb-0"><%= stack %></pre>
-                </div>
-            <% } %>
-            
-            <a href="/" class="btn btn-primary">Return Home</a>
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
+    <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center" data-aos="fade-up">
+        <!-- Error Animation -->
+        <div class="mb-8">
+            <lottie-player
+                src="https://assets5.lottiefiles.com/packages/lf20_error.json"
+                background="transparent"
+                speed="1"
+                style="width: 300px; height: 300px; margin: 0 auto;"
+                loop
+                autoplay>
+            </lottie-player>
         </div>
+
+        <!-- Error Message -->
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h1>
+        <p class="text-gray-600 mb-8">We're experiencing some technical difficulties. Please try again later.</p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="/" class="w-full sm:w-auto px-8 py-3 text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:opacity-90 transition-all duration-300">
+                <i class="fas fa-home mr-2"></i>
+                Return Home
+            </a>
+            <a href="/contact" class="w-full sm:w-auto px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-300">
+                <i class="fas fa-envelope mr-2"></i>
+                Contact Support
+            </a>
+        </div>
+
+        <% if (process.env.NODE_ENV === 'development' && error) { %>
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg text-left">
+                <p class="text-sm font-mono text-gray-600 break-all"><%= error.stack %></p>
+            </div>
+        <% } %>
     </div>
 </div>
 

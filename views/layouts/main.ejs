@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EventSys<% if (typeof title !== 'undefined') { %> - <%= title %><% } %></title>
+
+    <!-- Add these in the head section if not already present -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+
+    <!-- Add in head section -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+    <!-- Add before closing body tag -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/images/favicon.png">
@@ -24,6 +34,12 @@
     <!-- AOS Library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+    <!-- Add Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <!-- Add autoComplete.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css">
 
     <style>
         /* Responsive Grid */
@@ -146,6 +162,83 @@
             const spinner = document.getElementById('loading-spinner');
             spinner.classList.remove('hidden');
         });
+    </script>
+
+    <!-- Add Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <!-- Add autoComplete.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+    
+    <!-- Initialize autoComplete -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Only initialize if the location input exists
+        const locationInput = document.querySelector('#location');
+        if (locationInput) {
+            const autoCompleteJS = new autoComplete({
+                selector: "#location",
+                placeHolder: "Enter event location...",
+                data: {
+                    src: async (query) => {
+                        try {
+                            // You can replace this with your own location data source
+                            const locations = [
+                                "New York, USA",
+                                "London, UK",
+                                "Paris, France",
+                                "Tokyo, Japan",
+                                "Sydney, Australia",
+                                "Dubai, UAE",
+                                "Singapore",
+                                "Hong Kong",
+                                "Berlin, Germany",
+                                "Mumbai, India"
+                            ];
+                            
+                            return locations.filter(location => 
+                                location.toLowerCase().includes(query.toLowerCase())
+                            );
+                        } catch (error) {
+                            return [];
+                        }
+                    },
+                    cache: true,
+                },
+                resultItem: {
+                    highlight: true
+                },
+                events: {
+                    input: {
+                        selection: (event) => {
+                            const selection = event.detail.selection.value;
+                            autoCompleteJS.input.value = selection;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize all Swipers
+        const swipers = document.querySelectorAll('.swiper');
+        swipers.forEach(function(swiperContainer) {
+            new Swiper(swiperContainer, {
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+        });
+    });
     </script>
 </body>
 
